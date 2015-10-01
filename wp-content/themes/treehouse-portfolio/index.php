@@ -9,7 +9,10 @@
           <p><?php the_content(); ?></p> 
           <h2>Related Products</h2>
           <p><?php the_field('product_title'); ?></p>
-          <p><?php the_field('product_image_url'); ?></p>
+          <?php 
+            $product_image_url = get_field('product_image_url');
+            echo '<img src="' . htmlspecialchars($product_image_url) . '" alt="Product image"></img>';
+          ?>
           <p><?php the_field('product_price'); ?></p>
           <p><?php the_field('product_description'); ?></p>
 

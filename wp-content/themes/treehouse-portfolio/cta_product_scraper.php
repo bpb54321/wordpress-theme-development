@@ -27,13 +27,21 @@ function post_updated_do_action( $post_id ) {
                 Default value: ''
     */
 
+
     $product_info = get_product_info($product_url_value);
+    
+    
+    $meta_keys = ['product_title', 'product_image_url', 'product_price', 'product_description']; 
 
-    update_post_meta($post_id, 'product_title', $product_info["product_title"]);
-    update_post_meta($post_id, 'product_image_url', $product_info["product_image_url"]);
-    update_post_meta($post_id, 'product_price', $product_info["product_price"]);
-    update_post_meta($post_id, 'product_description', $product_info["product_description"]);
+    foreach ($meta_keys as $meta_key) {
+        /*
+        Function: update_post_meta ( int $post_id, string $meta_key, mixed $meta_value, mixed (optional) $prev_value = '' )
+        Return: (int|bool) Meta ID if the key didn't exist, true on successful update, false on failure.
+        */
+        update_post_meta($post_id, $meta_key, $product_info[$meta_key]);    
+    }
 
+    //update_post_meta($post_id, 'product_description', 'Test description');
 
 }
 
@@ -68,12 +76,19 @@ function get_product_info($url) {
                 
                 /*----------------------------------Product Title-----------------------------------------*/
                 $product_content_div = find_element_with_class($dom, 'div', 'content');
+                if ($product_content_div == false) {
+                    $product_title = "No product title found.";    
+                } else {
+                    $target_h1_list = $product_content_div->getElementsByTagName("h1");
+                    if ($target_h1_list->length==0) {
+                        $product_title = "No product title found.";    
+                    } else {
+                        //Store the first h1 tag
+                        $target_h1 = $target_h1_list[0];
+                        $product_title = $target_h1->nodeValue;    
+                    }      
+                }
                 
-                //Store the first h1 tag
-                $target_h1_list = $product_content_div->getElementsByTagName("h1");
-                $target_h1 = $target_h1_list[0];
-                $product_title = $target_h1->nodeValue;
-
                 $product_info["product_title"] = $product_title;
 
                 /*----------------------------------Product Image-----------------------------------------*/
@@ -88,20 +103,23 @@ function get_product_info($url) {
 
                 $product_info["product_image_url"] = $product_image_url;
                 /*----------------------------Product Price-----------------------------------------*/
-                $price_div = find_element_with_class($dom, 'div', 'price');
+                $item_id = substr($url, -4);
+                $price_id = "price_" . $item_id;
+                $price_input_element = $dom->getElementById($price_id); 
 
-                //Get 2nd child div of $price_div
-                $child_div_list = $price_div->getElementsByTagName("div");
-                $second_child_div = $child_div_list[1];
-
-                //Find <input> in 2nd child div
-                $target_input_list = $second_child_div->getElementsByTagName("input");
-                $target_input = $target_input_list[0];
-
-                //Get value of attribute "value"
-                $attributes = $target_input->attributes;
-                $value_attribute = $attributes->getNamedItem('value');
-                $product_price = $value_attribute->value;
+                if ($price_input_element == NULL) {
+                    $product_price = "Price not found.";
+                } else {
+                    //Get value of attribute "value"
+                    $attributes = $price_input_element->attributes;
+                    $value_attribute = $attributes->getNamedItem('value');
+                    if ($value_attribute == NULL) { //value attribute doesn't exist
+                        $product_price = "Price not found."; 
+                    } else {
+                        $product_price = $value_attribute->value;    
+                    }
+                
+                }
 
                 $product_info["product_price"] = $product_price;
                 /*----------------------------Product Desc-----------------------------------------*/

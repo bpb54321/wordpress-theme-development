@@ -1,6 +1,5 @@
 <?php 
 
-//include('test_functions.php');
 include('cta_product_scraper.php');
 
 function wpt_theme_styles() {

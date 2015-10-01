@@ -1,7 +1,7 @@
 <?php 
 
-//include($DOCUMENT_ROOT . 'test_functions.php');
-include($DOCUMENT_ROOT . 'cta_product_scraper.php');
+include('test_functions.php');
+//include($DOCUMENT_ROOT . 'cta_product_scraper.php');
 
 function wpt_theme_styles() {
 	wp_enqueue_style('foundation_css',get_template_directory_uri() . '/css/foundation.css');

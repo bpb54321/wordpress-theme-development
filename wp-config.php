@@ -77,7 +77,10 @@ $table_prefix  = 'wp_';
  *
  * @link https://codex.wordpress.org/Debugging_in_WordPress
  */
-define('WP_DEBUG', true);
+@ini_set('display_errors',0); //Turn off default display of errors, since WP_DEBUG can only turn error display on, not off.
+define('WP_DEBUG', true); // Turn debugging ON
+define('WP_DEBUG_DISPLAY', true); // Turn forced display ON
+define('WP_DEBUG_LOG', true);  // Turn logging to wp-content/debug.log ON
 
 /* That's all, stop editing! Happy blogging. */
 

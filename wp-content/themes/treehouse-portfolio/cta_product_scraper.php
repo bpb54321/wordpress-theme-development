@@ -5,7 +5,8 @@ function post_updated_do_action( $post_id ) {
     //Get the value of the 'product_url' field
     //get_post_meta ( int $post_id, string $key = '', bool $single = false )
     //Return: (mixed) Will be an array if $single is false. Will be value of meta data field if $single is true. 
-    $product_url_value = get_post_meta($post_id, 'product_url', true );
+    //$product_url_value = get_post_meta($post_id, 'product_url', true );
+    $product_id = get_post_meta($post_id, 'product_id', true );
 
     //Add data in 'product_url' field to 'product_title' field
     /* 
@@ -28,8 +29,8 @@ function post_updated_do_action( $post_id ) {
     */
 
 
-    $product_info = get_product_info($product_url_value);
-    
+    //$product_info = get_product_info($product_url_value);
+    $product_info = get_product_info($product_id);
     
     $meta_keys = ['product_title', 'product_image_url', 'product_price', 'product_description']; 
 
@@ -41,13 +42,14 @@ function post_updated_do_action( $post_id ) {
         update_post_meta($post_id, $meta_key, $product_info[$meta_key]);    
     }
 
-    //update_post_meta($post_id, 'product_description', 'Test description');
-
 }
 
 add_action( 'save_post', 'post_updated_do_action' );
 
-function get_product_info($url) {
+function get_product_info($product_id) {
+
+                //Create url from $product_id
+                $url = "http://www.ctainc.com/product/" . $product_id;
 
                 //instantiate info array
                 $product_info = array(
@@ -71,6 +73,8 @@ function get_product_info($url) {
 
                 //Use DOMDocument class, which is built into php
                 $dom = new DOMDocument;
+
+                libxml_use_internal_errors(true); //libxml_use_internal_errors() allows you to disable standard libxml errors and enable user error handling. 
                 $dom->loadHTML($html); //loads the html string into a DOMDocument
             
                 
@@ -93,18 +97,27 @@ function get_product_info($url) {
 
                 /*----------------------------------Product Image-----------------------------------------*/
                 $product_image_img = find_element_with_class($dom, 'img', 'product_image');
+                
                 if($product_image_img) {
-                    $src_node = $product_image_img->attributes->getNamedItem('src');
-                    $product_image_url = $src_node->value; 
+                    
+                    $src_attribute = $product_image_img->attributes->getNamedItem('src');
+
+                    if ($src_attribute) {
+                        $product_image_url = $src_attribute->value;
+                    } else {
+                        error_log("cta_product_scraper.php: The <img class='product_image'> had no src attribute. ");
+                        $product_image_url = "/";    
+                    }
 
                 } else {
-                    //echo "The product image search returned no matches.";
+                    error_log("cta_product_scraper.php: There was no <img> tag with class 'product_image' ");
+                    $product_image_url = "/"; 
                 }
 
                 $product_info["product_image_url"] = $product_image_url;
                 /*----------------------------Product Price-----------------------------------------*/
-                $item_id = substr($url, -4);
-                $price_id = "price_" . $item_id;
+                $product_id = substr($url, -4); //This function requires a url that ends with product id 
+                $price_id = "price_" . $product_id;
                 $price_input_element = $dom->getElementById($price_id); 
 
                 if ($price_input_element == NULL) {
@@ -151,7 +164,7 @@ Finds elements of a specified tag type that have a specified class name.
 @param: $dom = the DOMDocument object that contains your HTML
 @param: $tag_name = a string of the HTML tag you are searching for, without the <>, e.g. 'div' 
 @param: $class_name = a string of the class you are searching for 
-@returns: The first DOMElement that matches the $tag_name and $class_name.  
+@returns: The first DOMElement that matches the $tag_name and $class_name. False if no DOMElement with the $tag_name and $class_name were found.  
 */
 function find_element_with_class($dom, $tag_name, $class_name) {
     //DOMNodeList with matching tags
@@ -183,10 +196,4 @@ function find_element_with_class($dom, $tag_name, $class_name) {
         echo "<p>There were no elements of type " . $tag_name . " with class='" . $class_name . "'</p>";
         return false; 
     }  
-}
-
-
-?>
-
-                
-                
+}               

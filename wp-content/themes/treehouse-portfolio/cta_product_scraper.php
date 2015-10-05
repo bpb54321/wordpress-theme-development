@@ -192,7 +192,6 @@ function get_product_info($product_id) {
         $product_info["product_image_url"] = $product_image_url;
 
         /*----------------------------Product Price-----------------------------------------*/
-        $product_id = substr($url, -4); //This function requires a url that ends with product id 
         $price_id = "price_" . $product_id;
         $price_input_element = $dom->getElementById($price_id); 
 

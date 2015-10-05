@@ -1,13 +1,5 @@
 <?php
 
-function custom_field_test($post_id) {
-
-    //update_post_meta($post_id, $meta_key, $product_info[$meta_key]);
-    $id_1 = 1998;
-    update_post_meta($post_id, 'product_id', $id_1 );
-
-}
-
 function post_updated_do_action( $post_id ) {
 
     error_log("Beginning of post_updated_do_action() function");
@@ -24,7 +16,7 @@ function post_updated_do_action( $post_id ) {
    
     if ($product_ids) {
         
-        $meta_keys = ['product_title', 'product_image_url', 'product_price', 'product_description'];
+        $meta_keys = ['_product_title', '_product_image_url', '_product_price', '_product_description'];
 
         //Delete all custom fields besides product_id to remove old data
         
@@ -34,40 +26,14 @@ function post_updated_do_action( $post_id ) {
 
         foreach ($product_ids as $product_id) {
 
-            error_log("product_id");
-            error_log(print_r($product_id,true));
+            //error_log("product_id");
+            //error_log(print_r($product_id,true));
             
-            $product_info = get_product_info($product_id);
+            $product_info = get_product_info($product_id,$meta_keys);
 
             //Check to make sure product_info is what we expect. 
-            error_log("product_info");
+            error_log("product_info returned from get_product_info():");
             error_log(print_r($product_info,true));
-            
-            
-
-            
-
-            //Check to see if there are already meta values for each of the $meta_keys
-            //if (/*There is not already an existing meta key*/) {
-                //Create an array of meta keys equal to the size of $product_ids, and populate it with empty strings.
-            //} else /*If the meta key already exists*/ {
-                //Get the array of meta values
-
-                //Check to see whether length($product_ids)==length(meta_key_array)
-                //if(/*length($product_ids)!==length(meta_key_array)*/) {
-
-                //} else {
-
-                //}
-                //What about the situation where the length of $product_ids is not the same as the length of $product_titles, that is, where a new product id has recently been added?
-            //}
-
-            //If there are not yet any meta values for a given key, create them using update_post_meta, and get the corresponding meta_id.
-
-            //If the meta keys already exist:
-            //  Get the current values for the existing meta keys
-            //  Update the values on the meta keys. 
-
 
             foreach ($meta_keys as $meta_key) {
                 
@@ -87,20 +53,20 @@ function post_updated_do_action( $post_id ) {
         }
 
         $product_titles = get_post_meta($post_id, 'product_title', false );
-        error_log("product_titles array:");
-        error_log(print_r($product_titles,true));
+        //error_log("product_titles array:");
+        //error_log(print_r($product_titles,true));
 
         $product_image_urls = get_post_meta($post_id, 'product_image_url', false );
-        error_log("product_image_urls array:");
-        error_log(print_r($product_image_urls,true));
+        //error_log("product_image_urls array:");
+        //error_log(print_r($product_image_urls,true));
 
         $product_prices = get_post_meta($post_id, 'product_price', false );
-        error_log("product_prices array:");
-        error_log(print_r($product_prices,true));
+        //error_log("product_prices array:");
+        //error_log(print_r($product_prices,true));
 
         $product_descriptions = get_post_meta($post_id, 'product_description', false );
-        error_log("product_descriptions array:");
-        error_log(print_r($product_descriptions,true));
+        //error_log("product_descriptions array:");
+        //error_log(print_r($product_descriptions,true));
 
 
     }
@@ -116,7 +82,7 @@ function post_updated_do_action( $post_id ) {
 
 add_action( 'save_post', 'post_updated_do_action' );
 
-function get_product_info($product_id) {
+function get_product_info($product_id, $meta_key_array) {
     //Parse out the comma-separated list of multiple product id's, if present, into an array
     //$product_id_array = explode (",",$product_id_string);
     /*error_log( print_r( $product_id_array, true ) );
@@ -126,11 +92,18 @@ function get_product_info($product_id) {
     $ch = curl_init();
 
     //instantiate info array
-    $product_info = array(
+    /*$product_info = array(
         "product_title"  => "",
         "product_image_url" => "",
         "product_price" => "",
-        "product_description" => "");
+        "product_description" => "");*/
+
+    //$product_info = array("");
+    foreach ($meta_key_array as $meta_key) {
+        $product_info[$meta_key] = "";  
+    }
+    //error_log("product_info array:");
+    //error_log(print_r($product_info, true));
 
     //Loop through all product id's
     //foreach ($product_id_array as $product_id) {
@@ -167,7 +140,8 @@ function get_product_info($product_id) {
         
         //$product_info["product_title"] .= "," . $product_title;
         //$product_info["product_title"] = array($product_info["product_title"],$product_title);
-        $product_info["product_title"] = $product_title;
+        //$product_info["product_title"] = $product_title;
+        $product_info[$meta_key_array[0]] = $product_title;
 
         /*----------------------------------Product Image-----------------------------------------*/
         $product_image_img = find_element_with_class($dom, 'img', 'product_image');
@@ -189,7 +163,8 @@ function get_product_info($product_id) {
         }
 
         //$product_info["product_image_url"] .= "," . $product_image_url;
-        $product_info["product_image_url"] = $product_image_url;
+        //$product_info["product_image_url"] = $product_image_url;
+        $product_info[$meta_key_array[1]] = $product_image_url;
 
         /*----------------------------Product Price-----------------------------------------*/
         $price_id = "price_" . $product_id;
@@ -210,7 +185,8 @@ function get_product_info($product_id) {
         }
 
         //$product_info["product_price"] .= "," . $product_price;
-        $product_info["product_price"] = $product_price;
+        //$product_info["product_price"] = $product_price;
+        $product_info[$meta_key_array[2]] = $product_price;
         /*----------------------------Product Desc-----------------------------------------*/
         $product_description_div = find_element_with_class($dom, 'div', 'prod-desc');
 
@@ -230,7 +206,8 @@ function get_product_info($product_id) {
         }
 
         //$product_info["product_description"] .= "," . $product_description;
-        $product_info["product_description"] = $product_description;
+        //$product_info["product_description"] = $product_description;
+        $product_info[$meta_key_array[3]] = $product_description;
 
         /*---------------------------------------------------------------------*/
         

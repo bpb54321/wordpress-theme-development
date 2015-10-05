@@ -13,15 +13,15 @@
               $post_id = $post->ID; 
               $product_ids = get_post_meta($post_id, 'product_id', false );
 
-              error_log("product_ids array:");
-              error_log(print_r($product_ids,true));
+              //error_log("product_ids array:");
+              //error_log(print_r($product_ids,true));
 
               if ($product_ids) {
 
-                $product_titles = get_post_meta($post_id, 'product_title', false );
-                $product_image_urls = get_post_meta($post_id, 'product_image_url', false );
-                $product_prices = get_post_meta($post_id, 'product_price', false );
-                $product_descriptions = get_post_meta($post_id, 'product_description', false );
+                $product_titles = get_post_meta($post_id, '_product_title', false );
+                $product_image_urls = get_post_meta($post_id, '_product_image_url', false );
+                $product_prices = get_post_meta($post_id, '_product_price', false );
+                $product_descriptions = get_post_meta($post_id, '_product_description', false );
 
                 $i = 0;
                 foreach ($product_ids as $product_id) {

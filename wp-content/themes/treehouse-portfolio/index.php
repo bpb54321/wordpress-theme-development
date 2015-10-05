@@ -13,9 +13,6 @@
               $post_id = $post->ID; 
               $product_ids = get_post_meta($post_id, 'product_id', false );
 
-              //error_log("product_ids array:");
-              //error_log(print_r($product_ids,true));
-
               if ($product_ids) {
 
                 $product_titles = get_post_meta($post_id, '_product_title', false );

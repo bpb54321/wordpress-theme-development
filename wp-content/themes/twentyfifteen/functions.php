@@ -25,6 +25,35 @@
  * @since Twenty Fifteen 1.0
  */
 
+function check_for_meta_and_redirect_to_parent() {
+	global $post;
+	$post_id = $post->ID;
+
+	$subsection_field = get_post_meta ( $post_id, 'subsection', true );
+
+	error_log("SUBSECTION FIELD: " . $subsection_field);
+
+	if ( $subsection_field ) {
+		error_log("SUBSECTION FIELD IS NON-NULL");
+		//Get permalink of parent page
+		$post_parent_id = $post->post_parent;
+		error_log("POST PARENT: " . $post_parent_id);
+
+		if ( $post_parent_id ) {
+			//Get permalink of parent page
+			$parent_page_plink = get_permalink ( $post_parent_id );
+			error_log("PARENT_PAGE_PLINK: " . $parent_page_plink);
+
+			//Redirect to parent page permalink
+			wp_redirect( $parent_page_plink);
+			exit;	
+		}
+			
+	} else {
+		error_log("SUBSECTION FIELD IS NULL");	
+	}
+}
+
 /**
  * Set the content width based on the theme's design and stylesheet.
  *

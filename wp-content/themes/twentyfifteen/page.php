@@ -11,6 +11,8 @@
  * @since Twenty Fifteen 1.0
  */
 
+check_for_meta_and_redirect_to_parent();
+
 get_header(); ?>
 
 	<div id="primary" class="content-area">
